@@ -40,8 +40,8 @@ import org.apache.spark.sql.paimon.shims.SparkShimLoader
 /**
  * Spark 4.2+ shadow of RewritePaimonFunctionCommands.
  *
- * Kept under the same FQN as the spark-common implementation so paimon-spark-4.2 can shadow it
- * at runtime and avoid binary incompatibilities when Spark SessionCatalog signatures change.
+ * Kept under the same FQN as the spark-common implementation so paimon-spark-4.2 can shadow it at
+ * runtime and avoid binary incompatibilities when Spark SessionCatalog signatures change.
  */
 case class RewritePaimonFunctionCommands(spark: SparkSession)
   extends Rule[LogicalPlan]

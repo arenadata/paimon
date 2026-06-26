@@ -31,8 +31,8 @@ import org.apache.spark.sql.execution.datasources.v2.DataSourceV2Relation
 /**
  * Spark 4.2+ shadow of Spark41DeleteMetadataRestore.
  *
- * Kept under the same FQN as the spark4-common implementation so paimon-spark-4.2 can shadow it
- * at runtime and avoid binary incompatibilities when Spark's RewriteRowLevelCommand changes.
+ * Kept under the same FQN as the spark4-common implementation so paimon-spark-4.2 can shadow it at
+ * runtime and avoid binary incompatibilities when Spark's RewriteRowLevelCommand changes.
  */
 object Spark41DeleteMetadataRestore extends RewriteRowLevelCommand with PureAppendOnlyScope {
 

@@ -40,8 +40,8 @@ import org.apache.spark.sql.util.CaseInsensitiveStringMap
 /**
  * Spark 4.2+ shadow of Spark41MergeIntoRewrite.
  *
- * Kept under the same FQN as the spark4-common implementation so paimon-spark-4.2 can shadow it
- * at runtime and avoid binary incompatibilities when Spark's RewriteRowLevelCommand changes.
+ * Kept under the same FQN as the spark4-common implementation so paimon-spark-4.2 can shadow it at
+ * runtime and avoid binary incompatibilities when Spark's RewriteRowLevelCommand changes.
  */
 object Spark41MergeIntoRewrite
   extends RewriteRowLevelCommand

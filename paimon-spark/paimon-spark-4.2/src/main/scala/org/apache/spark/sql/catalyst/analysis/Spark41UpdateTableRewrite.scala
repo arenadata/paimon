@@ -33,8 +33,8 @@ import org.apache.spark.sql.util.CaseInsensitiveStringMap
 /**
  * Spark 4.2+ shadow of Spark41UpdateTableRewrite.
  *
- * Kept under the same FQN as the spark4-common implementation so paimon-spark-4.2 can shadow it
- * at runtime and avoid binary incompatibilities when Spark's RewriteRowLevelCommand changes.
+ * Kept under the same FQN as the spark4-common implementation so paimon-spark-4.2 can shadow it at
+ * runtime and avoid binary incompatibilities when Spark's RewriteRowLevelCommand changes.
  */
 object Spark41UpdateTableRewrite extends RewriteRowLevelCommand with PureAppendOnlyScope {
 
@@ -95,7 +95,8 @@ object Spark41UpdateTableRewrite extends RewriteRowLevelCommand with PureAppendO
     val updatedRowsPlan = buildReplaceDataUpdateProjection(matchedRowsPlan, assignments)
 
     val remainingRowFilter = Not(EqualNullSafe(cond, TrueLiteral))
-    val remainingRowsPlan = addOperationColumn(COPY_OPERATION, Filter(remainingRowFilter, readRelation))
+    val remainingRowsPlan =
+      addOperationColumn(COPY_OPERATION, Filter(remainingRowFilter, readRelation))
 
     val query = Union(updatedRowsPlan, remainingRowsPlan)
     val writeRelation = relation.copy(table = operationTable)
