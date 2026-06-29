@@ -238,4 +238,13 @@ trait SparkShim {
   def isSparkVariantType(dataType: org.apache.spark.sql.types.DataType): Boolean
 
   def SparkVariantType(): org.apache.spark.sql.types.DataType
+
+  /**
+   * Creates a Spark `CharType`. Spark 4.2 (SPARK-54870) replaced the single-arg `CharType(length)`
+   * constructor with a collation-aware case class, so the 4.2 shim must use `CharType.apply`.
+   */
+  def createCharType(length: Int): org.apache.spark.sql.types.DataType
+
+  /** Same collation constructor change as [[createCharType]] for `VarcharType`. */
+  def createVarcharType(length: Int): org.apache.spark.sql.types.DataType
 }

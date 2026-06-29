@@ -53,7 +53,7 @@ import org.apache.spark.sql.execution.datasources.v2.{AtomicReplaceTableAsSelect
 import org.apache.spark.sql.execution.datasources.v2.DataSourceV2Relation
 import org.apache.spark.sql.execution.streaming.{FileStreamSink, MetadataLogFileIndex}
 import org.apache.spark.sql.internal.SQLConf
-import org.apache.spark.sql.types.StructType
+import org.apache.spark.sql.types.{CharType, StructType, VarcharType}
 
 import java.util.{Map => JMap}
 
@@ -311,6 +311,12 @@ class Spark3Shim extends SparkShim {
       userSpecifiedSchema,
       partitionSchema)
   }
+
+  override def createCharType(length: Int): org.apache.spark.sql.types.DataType =
+    new CharType(length)
+
+  override def createVarcharType(length: Int): org.apache.spark.sql.types.DataType =
+    new VarcharType(length)
 
   override def toPaimonVariant(o: Object): Variant = throw new UnsupportedOperationException()
 
