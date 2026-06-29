@@ -50,7 +50,7 @@ import org.apache.spark.sql.execution.datasources.v2.DataSourceV2Relation
 import org.apache.spark.sql.execution.streaming.runtime.MetadataLogFileIndex
 import org.apache.spark.sql.execution.streaming.sinks.FileStreamSink
 import org.apache.spark.sql.internal.SQLConf
-import org.apache.spark.sql.types.{CharType, DataTypes, StructType, VariantType, VarcharType}
+import org.apache.spark.sql.types.{CharType, DataTypes, StructType, VarcharType, VariantType}
 import org.apache.spark.unsafe.types.VariantVal
 
 import java.util.{Map => JMap}
