@@ -162,8 +162,9 @@ trait SparkShim {
 
   /**
    * Constructs the Paimon fallback command for dynamic partition overwrite. Spark 4.2 extended
-   * [[V2WriteCommand]] with [[org.apache.spark.sql.catalyst.plans.logical.WriteWithSchemaEvolution]],
-   * so the concrete command class is version-specific and must be built behind this shim.
+   * [[V2WriteCommand]] with
+   * [[org.apache.spark.sql.catalyst.plans.logical.WriteWithSchemaEvolution]], so the concrete
+   * command class is version-specific and must be built behind this shim.
    */
   def createPaimonDynamicPartitionOverwriteCommand(
       table: NamedRelation,
