@@ -37,7 +37,7 @@ import org.apache.spark.sql.catalyst.analysis.{CTESubstitution, NamedRelation, S
 import org.apache.spark.sql.catalyst.expressions.{Attribute, AttributeReference, Expression}
 import org.apache.spark.sql.catalyst.expressions.aggregate.AggregateExpression
 import org.apache.spark.sql.catalyst.parser.ParserInterface
-import org.apache.spark.sql.catalyst.plans.logical.{Aggregate, Assignment, CTERelationRef, InsertAction, LogicalPlan, MergeAction, MergeIntoTable, OverwritePartitionsDynamic, SubqueryAlias, TableSpec, UnresolvedWith, UpdateAction}
+import org.apache.spark.sql.catalyst.plans.logical.{Aggregate, Assignment, CTERelationRef, InsertAction, LogicalPlan, MergeAction, MergeIntoTable, OverwriteByExpression, OverwritePartitionsDynamic, SubqueryAlias, TableSpec, UnresolvedWith, UpdateAction}
 // NOTE: `MergeRows` / `MergeRows.Keep` were introduced in Spark 3.4. We access them only via
 // reflection inside the `mergeRowsKeep*` method bodies so that loading `Spark3Shim` does not fail
 // on Spark 3.2 / 3.3 runtimes that still ship `paimon-spark3-common` (the module targets 3.5.8 at
@@ -248,6 +248,23 @@ class Spark3Shim extends SparkShim {
       isByName: Boolean,
       source: OverwritePartitionsDynamic): LogicalPlan = {
     PaimonDynamicPartitionOverwriteCommand(table, fileStoreTable, query, writeOptions, isByName)
+  }
+
+  override def createOverwriteByExpressionByName(
+      table: NamedRelation,
+      query: LogicalPlan,
+      condition: Expression,
+      writeOptions: Map[String, String],
+      withSchemaEvolution: Boolean): LogicalPlan = {
+    OverwriteByExpression.byName(table, query, condition, writeOptions)
+  }
+
+  override def createOverwritePartitionsDynamicByName(
+      table: NamedRelation,
+      query: LogicalPlan,
+      writeOptions: Map[String, String],
+      withSchemaEvolution: Boolean): LogicalPlan = {
+    OverwritePartitionsDynamic.byName(table, query, writeOptions)
   }
 
   override def notMatchedBySourceActions(merge: MergeIntoTable): Seq[MergeAction] =

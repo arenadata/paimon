@@ -37,7 +37,7 @@ import org.apache.spark.sql.catalyst.analysis.{CTESubstitution, NamedRelation, S
 import org.apache.spark.sql.catalyst.expressions.{Attribute, AttributeReference, Expression}
 import org.apache.spark.sql.catalyst.expressions.aggregate.AggregateExpression
 import org.apache.spark.sql.catalyst.parser.ParserInterface
-import org.apache.spark.sql.catalyst.plans.logical.{Aggregate, Assignment, ColumnDefinition, CTERelationRef, InsertAction, LogicalPlan, MergeAction, MergeIntoTable, MergeRows, OverwritePartitionsDynamic, SubqueryAlias, TableSpec, UnresolvedWith, UpdateAction}
+import org.apache.spark.sql.catalyst.plans.logical.{Aggregate, Assignment, ColumnDefinition, CTERelationRef, InsertAction, LogicalPlan, MergeAction, MergeIntoTable, MergeRows, OverwriteByExpression, OverwritePartitionsDynamic, SubqueryAlias, TableSpec, UnresolvedWith, UpdateAction}
 import org.apache.spark.sql.catalyst.plans.logical.MergeRows.Keep
 import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.catalyst.util.{ArrayData, GeneratedColumn, IdentityColumn, ResolveDefaultColumns}
@@ -265,6 +265,23 @@ class Spark4Shim extends SparkShim {
       isByName: Boolean,
       source: OverwritePartitionsDynamic): LogicalPlan = {
     PaimonDynamicPartitionOverwriteCommand(table, fileStoreTable, query, writeOptions, isByName)
+  }
+
+  override def createOverwriteByExpressionByName(
+      table: NamedRelation,
+      query: LogicalPlan,
+      condition: Expression,
+      writeOptions: Map[String, String],
+      withSchemaEvolution: Boolean): LogicalPlan = {
+    OverwriteByExpression.byName(table, query, condition, writeOptions)
+  }
+
+  override def createOverwritePartitionsDynamicByName(
+      table: NamedRelation,
+      query: LogicalPlan,
+      writeOptions: Map[String, String],
+      withSchemaEvolution: Boolean): LogicalPlan = {
+    OverwritePartitionsDynamic.byName(table, query, writeOptions)
   }
 
   override def notMatchedBySourceActions(merge: MergeIntoTable): Seq[MergeAction] =

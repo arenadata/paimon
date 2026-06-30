@@ -30,7 +30,7 @@ import org.apache.spark.sql.catalyst.analysis.NamedRelation
 import org.apache.spark.sql.catalyst.expressions.{Attribute, Expression}
 import org.apache.spark.sql.catalyst.expressions.aggregate.AggregateExpression
 import org.apache.spark.sql.catalyst.parser.ParserInterface
-import org.apache.spark.sql.catalyst.plans.logical.{Assignment, CTERelationRef, InsertAction, LogicalPlan, MergeAction, MergeIntoTable, OverwritePartitionsDynamic, SubqueryAlias, TableSpec, UnresolvedWith, UpdateAction}
+import org.apache.spark.sql.catalyst.plans.logical.{Assignment, CTERelationRef, InsertAction, LogicalPlan, MergeAction, MergeIntoTable, OverwriteByExpression, OverwritePartitionsDynamic, SubqueryAlias, TableSpec, UnresolvedWith, UpdateAction}
 import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.catalyst.util.ArrayData
 import org.apache.spark.sql.connector.catalog.{Column, Identifier, StagingTableCatalog, Table, TableCatalog}
@@ -173,6 +173,27 @@ trait SparkShim {
       writeOptions: Map[String, String],
       isByName: Boolean,
       source: OverwritePartitionsDynamic): LogicalPlan
+
+  /**
+   * Spark 4.2 added `withSchemaEvolution` to [[OverwriteByExpression]] factory methods. The
+   * signature must be constructed behind this shim.
+   */
+  def createOverwriteByExpressionByName(
+      table: NamedRelation,
+      query: LogicalPlan,
+      condition: Expression,
+      writeOptions: Map[String, String],
+      withSchemaEvolution: Boolean = false): LogicalPlan
+
+  /**
+   * Spark 4.2 added `withSchemaEvolution` to [[OverwritePartitionsDynamic]] factory methods. The
+   * signature must be constructed behind this shim.
+   */
+  def createOverwritePartitionsDynamicByName(
+      table: NamedRelation,
+      query: LogicalPlan,
+      writeOptions: Map[String, String],
+      withSchemaEvolution: Boolean = false): LogicalPlan
 
   // Spark 3.4 added `notMatchedBySourceActions` to `MergeIntoTable`. On 3.2/3.3 the field doesn't
   // exist on the AST, so this returns `Seq.empty`. Lets `paimon-spark-common` (which compiles
