@@ -138,14 +138,12 @@ object PaimonTableAsSelectHelper {
         spark.sessionState.conf.partitionOverwriteMode == PartitionOverwriteMode.DYNAMIC
       if (dynamicOverwrite) {
         Some(
-          SparkShimLoader.shim.createOverwritePartitionsDynamicByName(relation, query, writeOptions))
+          SparkShimLoader.shim
+            .createOverwritePartitionsDynamicByName(relation, query, writeOptions))
       } else {
         Some(
-          SparkShimLoader.shim.createOverwriteByExpressionByName(
-            relation,
-            query,
-            Literal(true),
-            writeOptions))
+          SparkShimLoader.shim
+            .createOverwriteByExpressionByName(relation, query, Literal(true), writeOptions))
       }
     } catch {
       case _: Exception => None
