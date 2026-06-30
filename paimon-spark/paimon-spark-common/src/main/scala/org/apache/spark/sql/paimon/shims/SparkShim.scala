@@ -26,10 +26,11 @@ import org.apache.paimon.types.{DataType, RowType}
 
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.analysis.NamedRelation
 import org.apache.spark.sql.catalyst.expressions.{Attribute, Expression}
 import org.apache.spark.sql.catalyst.expressions.aggregate.AggregateExpression
 import org.apache.spark.sql.catalyst.parser.ParserInterface
-import org.apache.spark.sql.catalyst.plans.logical.{Assignment, CTERelationRef, InsertAction, LogicalPlan, MergeAction, MergeIntoTable, SubqueryAlias, TableSpec, UnresolvedWith, UpdateAction}
+import org.apache.spark.sql.catalyst.plans.logical.{Assignment, CTERelationRef, InsertAction, LogicalPlan, MergeAction, MergeIntoTable, OverwritePartitionsDynamic, SubqueryAlias, TableSpec, UnresolvedWith, UpdateAction}
 import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.catalyst.util.ArrayData
 import org.apache.spark.sql.connector.catalog.{Column, Identifier, StagingTableCatalog, Table, TableCatalog}
@@ -158,6 +159,19 @@ trait SparkShim {
       notMatchedActions: Seq[MergeAction],
       notMatchedBySourceActions: Seq[MergeAction],
       withSchemaEvolution: Boolean): MergeIntoTable
+
+  /**
+   * Constructs the Paimon fallback command for dynamic partition overwrite. Spark 4.2 extended
+   * [[V2WriteCommand]] with [[org.apache.spark.sql.catalyst.plans.logical.WriteWithSchemaEvolution]],
+   * so the concrete command class is version-specific and must be built behind this shim.
+   */
+  def createPaimonDynamicPartitionOverwriteCommand(
+      table: NamedRelation,
+      fileStoreTable: FileStoreTable,
+      query: LogicalPlan,
+      writeOptions: Map[String, String],
+      isByName: Boolean,
+      source: OverwritePartitionsDynamic): LogicalPlan
 
   // Spark 3.4 added `notMatchedBySourceActions` to `MergeIntoTable`. On 3.2/3.3 the field doesn't
   // exist on the AST, so this returns `Seq.empty`. Lets `paimon-spark-common` (which compiles

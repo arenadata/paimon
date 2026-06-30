@@ -19,6 +19,7 @@
 package org.apache.spark.sql.paimon.shims
 
 import org.apache.paimon.data.variant.{GenericVariant, Variant}
+import org.apache.paimon.spark.commands.PaimonDynamicPartitionOverwriteCommand
 import org.apache.paimon.spark.catalyst.analysis.Spark4ResolutionRules
 import org.apache.paimon.spark.catalyst.parser.extensions.PaimonSpark4SqlExtensionsParser
 import org.apache.paimon.spark.data.{Spark4ArrayData, Spark4InternalRow, Spark4InternalRowWithBlob, SparkArrayData, SparkInternalRow}
@@ -32,11 +33,11 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.analysis.{CTESubstitution, SubstituteUnresolvedOrdinals}
+import org.apache.spark.sql.catalyst.analysis.{CTESubstitution, NamedRelation, SubstituteUnresolvedOrdinals}
 import org.apache.spark.sql.catalyst.expressions.{Attribute, AttributeReference, Expression}
 import org.apache.spark.sql.catalyst.expressions.aggregate.AggregateExpression
 import org.apache.spark.sql.catalyst.parser.ParserInterface
-import org.apache.spark.sql.catalyst.plans.logical.{Aggregate, Assignment, ColumnDefinition, CTERelationRef, InsertAction, LogicalPlan, MergeAction, MergeIntoTable, MergeRows, SubqueryAlias, TableSpec, UnresolvedWith, UpdateAction}
+import org.apache.spark.sql.catalyst.plans.logical.{Aggregate, Assignment, ColumnDefinition, CTERelationRef, InsertAction, LogicalPlan, MergeAction, MergeIntoTable, MergeRows, OverwritePartitionsDynamic, SubqueryAlias, TableSpec, UnresolvedWith, UpdateAction}
 import org.apache.spark.sql.catalyst.plans.logical.MergeRows.Keep
 import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.catalyst.util.{ArrayData, GeneratedColumn, IdentityColumn, ResolveDefaultColumns}
@@ -254,6 +255,21 @@ class Spark4Shim extends SparkShim {
       notMatchedActions,
       notMatchedBySourceActions,
       withSchemaEvolution)
+  }
+
+  override def createPaimonDynamicPartitionOverwriteCommand(
+      table: NamedRelation,
+      fileStoreTable: FileStoreTable,
+      query: LogicalPlan,
+      writeOptions: Map[String, String],
+      isByName: Boolean,
+      source: OverwritePartitionsDynamic): LogicalPlan = {
+    PaimonDynamicPartitionOverwriteCommand(
+      table,
+      fileStoreTable,
+      query,
+      writeOptions,
+      isByName)
   }
 
   override def notMatchedBySourceActions(merge: MergeIntoTable): Seq[MergeAction] =
