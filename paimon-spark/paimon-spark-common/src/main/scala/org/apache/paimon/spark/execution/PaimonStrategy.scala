@@ -19,7 +19,7 @@
 package org.apache.paimon.spark.execution
 
 import org.apache.paimon.partition.PartitionPredicate
-import org.apache.paimon.spark.{SparkCatalogBase, SparkGenericCatalog, SparkTable, SparkUtils}
+import org.apache.paimon.spark.{SparkCatalogBase, SparkGenericCatalogBase, SparkTable, SparkUtils}
 import org.apache.paimon.spark.catalog.{SparkBaseCatalog, SupportView}
 import org.apache.paimon.spark.catalyst.analysis.ResolvedPaimonView
 import org.apache.paimon.spark.catalyst.plans.logical.{CopyIntoLocationCommand, CopyIntoLocationSource, CopyIntoTableCommand, CreateOrReplaceTagCommand, CreatePaimonView, DeleteTagCommand, DropPaimonView, PaimonCallCommand, PaimonDropPartitions, RenameTagCommand, ResolvedIdentifier, ShowPaimonViews, ShowTagsCommand, TruncatePaimonTableWithFilter}
@@ -209,7 +209,7 @@ case class PaimonStrategy(spark: SparkSession)
       catalogAndIdentifier.catalog match {
         case paimonCatalog: SparkCatalogBase =>
           Some((paimonCatalog, catalogAndIdentifier.identifier()))
-        case paimonCatalog: SparkGenericCatalog =>
+        case paimonCatalog: SparkGenericCatalogBase =>
           Some((paimonCatalog, catalogAndIdentifier.identifier()))
         case _ =>
           None

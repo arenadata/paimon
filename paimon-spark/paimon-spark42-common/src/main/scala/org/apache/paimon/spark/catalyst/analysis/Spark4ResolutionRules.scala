@@ -22,10 +22,18 @@ import org.apache.paimon.spark.commands.PaimonShowTablePartitionCommand
 
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.analysis.ResolvedTable
+import org.apache.spark.sql.catalyst.parser.extensions.RewriteCreateTableLikeCommand
 import org.apache.spark.sql.catalyst.plans.logical.{LogicalPlan, ShowTablePartition}
 import org.apache.spark.sql.catalyst.rules.Rule
 
 case class Spark4ResolutionRules(session: SparkSession) extends Rule[LogicalPlan] {
+  private val rewriteCreateTableLike = RewriteCreateTableLikeCommand(session)
+
+  override def apply(plan: LogicalPlan): LogicalPlan =
+    ShowTablePartitionRewrite(rewriteCreateTableLike(Spark42CreateTableLikeRewrite(session)(plan)))
+}
+
+private object ShowTablePartitionRewrite extends Rule[LogicalPlan] {
   override def apply(plan: LogicalPlan): LogicalPlan = plan.resolveOperatorsDown {
     case s @ ShowTablePartition(rt: ResolvedTable, _, _) =>
       val resolvedSpec =

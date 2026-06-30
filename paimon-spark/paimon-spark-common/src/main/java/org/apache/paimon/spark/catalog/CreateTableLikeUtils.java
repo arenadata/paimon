@@ -53,6 +53,14 @@ public final class CreateTableLikeUtils {
 
     private CreateTableLikeUtils() {}
 
+    public static String resolveTargetProvider(
+            Map<String, String> tableInfoProperties, Table sourceTable) {
+        if (tableInfoProperties.containsKey(TableCatalog.PROP_PROVIDER)) {
+            return tableInfoProperties.get(TableCatalog.PROP_PROVIDER);
+        }
+        return sourceTable.properties().get(TableCatalog.PROP_PROVIDER);
+    }
+
     public static Table createTableLike(
             SparkCatalogBase catalog,
             Identifier ident,

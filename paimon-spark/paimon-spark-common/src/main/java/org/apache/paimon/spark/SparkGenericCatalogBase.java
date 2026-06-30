@@ -81,9 +81,9 @@ import static org.apache.paimon.utils.Preconditions.checkNotNull;
  *
  * <p>Most of the content of this class is referenced from Iceberg's SparkSessionCatalog.
  */
-public class SparkGenericCatalog extends SparkBaseCatalog implements CatalogExtension {
+public class SparkGenericCatalogBase extends SparkBaseCatalog implements CatalogExtension {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SparkGenericCatalog.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SparkGenericCatalogBase.class);
 
     private SparkCatalogBase sparkCatalog = null;
 
@@ -395,11 +395,19 @@ public class SparkGenericCatalog extends SparkBaseCatalog implements CatalogExte
         }
     }
 
+    protected SparkCatalogBase getSparkCatalog() {
+        return sparkCatalog;
+    }
+
+    protected TableCatalog asSessionTableCatalog() {
+        return asTableCatalog();
+    }
+
     private CatalogPlugin getDelegateCatalog() {
         checkNotNull(
                 sessionCatalog,
                 "Delegated SessionCatalog is missing, '%s' can only be used with 'spark_catalog'.",
-                SparkGenericCatalog.class.getName());
+                SparkGenericCatalogBase.class.getName());
         return sessionCatalog;
     }
 
