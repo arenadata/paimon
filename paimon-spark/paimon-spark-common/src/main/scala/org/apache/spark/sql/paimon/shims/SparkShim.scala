@@ -30,7 +30,7 @@ import org.apache.spark.sql.catalyst.analysis.NamedRelation
 import org.apache.spark.sql.catalyst.expressions.{Attribute, Expression}
 import org.apache.spark.sql.catalyst.expressions.aggregate.AggregateExpression
 import org.apache.spark.sql.catalyst.parser.ParserInterface
-import org.apache.spark.sql.catalyst.plans.logical.{Assignment, CTERelationRef, InsertAction, LogicalPlan, MergeAction, MergeIntoTable, OverwriteByExpression, OverwritePartitionsDynamic, SubqueryAlias, TableSpec, UnresolvedWith, UpdateAction}
+import org.apache.spark.sql.catalyst.plans.logical.{Assignment, CTERelationRef, DescribeRelation, InsertAction, LogicalPlan, MergeAction, MergeIntoTable, OverwriteByExpression, OverwritePartitionsDynamic, SubqueryAlias, TableSpec, UnresolvedWith, UpdateAction}
 import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.catalyst.util.ArrayData
 import org.apache.spark.sql.connector.catalog.{Column, Identifier, StagingTableCatalog, Table, TableCatalog}
@@ -194,6 +194,19 @@ trait SparkShim {
       query: LogicalPlan,
       writeOptions: Map[String, String],
       withSchemaEvolution: Boolean = false): LogicalPlan
+
+  /**
+   * Returns the partition spec for [[DescribeRelation]]. Spark 4.2 removed `partitionSpec` from
+   * `DescribeRelation` (partition describe moved to [[DescribeTablePartition]]), so this accessor
+   * must be version-specific to avoid `NoSuchMethodError` at runtime.
+   */
+  def describeRelationPartitionSpec(describe: DescribeRelation): Map[String, String]
+
+  /**
+   * Plans Spark 4.2 [[DescribeTablePartition]] for Paimon tables. Returns `None` on Spark versions
+   * that do not have this logical node.
+   */
+  def planDescribeTablePartition(spark: SparkSession, plan: LogicalPlan): Option[Seq[SparkPlan]]
 
   // Spark 3.4 added `notMatchedBySourceActions` to `MergeIntoTable`. On 3.2/3.3 the field doesn't
   // exist on the AST, so this returns `Seq.empty`. Lets `paimon-spark-common` (which compiles

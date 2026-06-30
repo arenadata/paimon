@@ -37,7 +37,7 @@ import org.apache.spark.sql.catalyst.analysis.{CTESubstitution, NamedRelation, S
 import org.apache.spark.sql.catalyst.expressions.{Attribute, AttributeReference, Expression}
 import org.apache.spark.sql.catalyst.expressions.aggregate.AggregateExpression
 import org.apache.spark.sql.catalyst.parser.ParserInterface
-import org.apache.spark.sql.catalyst.plans.logical.{Aggregate, Assignment, ColumnDefinition, CTERelationRef, InsertAction, LogicalPlan, MergeAction, MergeIntoTable, MergeRows, OverwriteByExpression, OverwritePartitionsDynamic, SubqueryAlias, TableSpec, UnresolvedWith, UpdateAction}
+import org.apache.spark.sql.catalyst.plans.logical.{Aggregate, Assignment, ColumnDefinition, CTERelationRef, DescribeRelation, InsertAction, LogicalPlan, MergeAction, MergeIntoTable, MergeRows, OverwriteByExpression, OverwritePartitionsDynamic, SubqueryAlias, TableSpec, UnresolvedWith, UpdateAction}
 import org.apache.spark.sql.catalyst.plans.logical.MergeRows.Keep
 import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.catalyst.util.{ArrayData, GeneratedColumn, IdentityColumn, ResolveDefaultColumns}
@@ -283,6 +283,13 @@ class Spark4Shim extends SparkShim {
       withSchemaEvolution: Boolean): LogicalPlan = {
     OverwritePartitionsDynamic.byName(table, query, writeOptions)
   }
+
+  override def describeRelationPartitionSpec(describe: DescribeRelation): Map[String, String] =
+    describe.partitionSpec
+
+  override def planDescribeTablePartition(
+      spark: SparkSession,
+      plan: LogicalPlan): Option[Seq[SparkPlan]] = None
 
   override def notMatchedBySourceActions(merge: MergeIntoTable): Seq[MergeAction] =
     merge.notMatchedBySourceActions

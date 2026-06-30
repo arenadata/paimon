@@ -21,6 +21,7 @@ package org.apache.spark.sql.paimon.shims
 import org.apache.paimon.data.variant.{GenericVariant, Variant}
 import org.apache.paimon.spark.catalyst.analysis.Spark4ResolutionRules
 import org.apache.paimon.spark.catalyst.parser.extensions.PaimonSpark4SqlExtensionsParser
+import org.apache.paimon.spark.execution.Spark42DescribeTablePlanning
 import org.apache.paimon.spark.commands.PaimonSpark42DynamicPartitionOverwriteCommand
 import org.apache.paimon.spark.data.{Spark4ArrayData, Spark4InternalRow, Spark4InternalRowWithBlob, SparkArrayData, SparkInternalRow}
 import org.apache.paimon.spark.format.FormatTableBatchWrite
@@ -37,7 +38,7 @@ import org.apache.spark.sql.catalyst.analysis.{CTESubstitution, NamedRelation}
 import org.apache.spark.sql.catalyst.expressions.{Attribute, AttributeReference, Expression}
 import org.apache.spark.sql.catalyst.expressions.aggregate.AggregateExpression
 import org.apache.spark.sql.catalyst.parser.ParserInterface
-import org.apache.spark.sql.catalyst.plans.logical.{Aggregate, Assignment, ColumnDefinition, CTERelationRef, InsertAction, LogicalPlan, MergeAction, MergeIntoTable, MergeRows, OverwriteByExpression, OverwritePartitionsDynamic, SubqueryAlias, TableSpec, UnresolvedWith, UpdateAction}
+import org.apache.spark.sql.catalyst.plans.logical.{Aggregate, Assignment, ColumnDefinition, CTERelationRef, DescribeRelation, InsertAction, LogicalPlan, MergeAction, MergeIntoTable, MergeRows, OverwriteByExpression, OverwritePartitionsDynamic, SubqueryAlias, TableSpec, UnresolvedWith, UpdateAction}
 import org.apache.spark.sql.catalyst.plans.logical.MergeRows.{Copy, Insert, Keep, Update}
 import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.catalyst.util.{ArrayData, GeneratedColumn, IdentityColumn, ResolveDefaultColumns}
@@ -273,6 +274,14 @@ class Spark42Shim extends SparkShim {
       withSchemaEvolution: Boolean): LogicalPlan = {
     OverwritePartitionsDynamic.byName(table, query, writeOptions, withSchemaEvolution)
   }
+
+  override def describeRelationPartitionSpec(describe: DescribeRelation): Map[String, String] =
+    Map.empty
+
+  override def planDescribeTablePartition(
+      spark: SparkSession,
+      plan: LogicalPlan): Option[Seq[SparkPlan]] =
+    Spark42DescribeTablePlanning.plan(spark, plan)
 
   override def notMatchedBySourceActions(merge: MergeIntoTable): Seq[MergeAction] =
     merge.notMatchedBySourceActions

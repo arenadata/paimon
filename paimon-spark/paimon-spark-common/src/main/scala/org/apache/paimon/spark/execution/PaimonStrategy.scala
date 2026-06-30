@@ -46,7 +46,11 @@ case class PaimonStrategy(spark: SparkSession)
   import DataSourceV2Implicits._
   protected lazy val catalogManager = spark.sessionState.catalogManager
 
-  override def apply(plan: LogicalPlan): Seq[SparkPlan] = plan match {
+  override def apply(plan: LogicalPlan): Seq[SparkPlan] = {
+    SparkShimLoader.shim.planDescribeTablePartition(spark, plan).getOrElse(apply0(plan))
+  }
+
+  private def apply0(plan: LogicalPlan): Seq[SparkPlan] = plan match {
 
     case ctas: CreateTableAsSelect =>
       PaimonCreateTableAsSelectStrategy(spark)(ctas)
@@ -116,19 +120,22 @@ case class PaimonStrategy(spark: SparkSession)
     case ShowCreateTable(ResolvedPaimonView(viewCatalog, ident), _, output) =>
       ShowCreatePaimonViewExec(output, viewCatalog, ident) :: Nil
 
-    case DescribeRelation(ResolvedPaimonView(viewCatalog, ident), _, isExtended, output) =>
-      DescribePaimonViewExec(output, viewCatalog, ident, isExtended) :: Nil
-
-    case DescribeRelation(r: ResolvedTable, partitionSpec, isExtended, output) =>
-      (r.table, r.catalog) match {
-        case (sparkTable: SparkTable, sparkCatalog: SparkBaseCatalog) =>
-          PaimonDescribeTableExec(
-            output,
-            sparkCatalog,
-            r.identifier,
-            sparkTable,
-            partitionSpec,
-            isExtended) :: Nil
+    case d: DescribeRelation =>
+      d.relation match {
+        case ResolvedPaimonView(viewCatalog, ident) =>
+          DescribePaimonViewExec(d.output, viewCatalog, ident, d.isExtended) :: Nil
+        case r: ResolvedTable =>
+          (r.table, r.catalog) match {
+            case (sparkTable: SparkTable, sparkCatalog: SparkBaseCatalog) =>
+              PaimonDescribeTableExec(
+                d.output,
+                sparkCatalog,
+                r.identifier,
+                sparkTable,
+                SparkShimLoader.shim.describeRelationPartitionSpec(d),
+                d.isExtended) :: Nil
+            case _ => Nil
+          }
         case _ => Nil
       }
 
