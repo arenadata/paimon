@@ -85,7 +85,7 @@ public class SparkGenericCatalog extends SparkBaseCatalog implements CatalogExte
 
     private static final Logger LOG = LoggerFactory.getLogger(SparkGenericCatalog.class);
 
-    private SparkCatalog sparkCatalog = null;
+    private SparkCatalogBase sparkCatalog = null;
 
     private boolean underlyingSessionCatalogEnabled = false;
 
@@ -318,7 +318,7 @@ public class SparkGenericCatalog extends SparkBaseCatalog implements CatalogExte
             }
         }
         this.catalogName = name;
-        this.sparkCatalog = new SparkCatalog();
+        this.sparkCatalog = SparkCatalogLoader.load();
 
         CaseInsensitiveStringMap newOptions =
                 autoFillConfigurations(options, sessionState.conf(), hadoopConf);

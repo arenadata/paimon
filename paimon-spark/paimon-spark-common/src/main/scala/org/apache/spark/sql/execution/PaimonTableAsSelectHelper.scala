@@ -22,7 +22,7 @@ import org.apache.paimon.CoreOptions
 import org.apache.paimon.CoreOptions.TYPE
 import org.apache.paimon.iceberg.IcebergOptions
 import org.apache.paimon.options.Options
-import org.apache.paimon.spark.{SparkCatalog, SparkGenericCatalog, SparkSource, SparkTable}
+import org.apache.paimon.spark.{SparkCatalogBase, SparkGenericCatalog, SparkSource, SparkTable}
 import org.apache.paimon.spark.catalog.SparkBaseCatalog
 import org.apache.paimon.table.FileStoreTable
 import org.apache.paimon.table.source.snapshot.TimeTravelUtil
@@ -151,7 +151,7 @@ object PaimonTableAsSelectHelper {
   }
 
   def supportsCatalog(catalog: SparkBaseCatalog, tableSpec: TableSpec): Boolean = catalog match {
-    case _: SparkCatalog => true
+    case _: SparkCatalogBase => true
     case _: SparkGenericCatalog =>
       tableSpec.provider.exists(_.equalsIgnoreCase(SparkSource.NAME))
     case _ => false

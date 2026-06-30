@@ -21,7 +21,7 @@ package org.apache.spark.sql.catalyst.parser.extensions
 import org.apache.paimon.catalog.Catalog.SYSTEM_DATABASE_NAME
 import org.apache.paimon.function.{Function => PaimonFunction}
 import org.apache.paimon.function.FunctionDefinition
-import org.apache.paimon.spark.SparkCatalog.FUNCTION_DEFINITION_NAME
+import org.apache.paimon.spark.SparkCatalogBase.FUNCTION_DEFINITION_NAME
 import org.apache.paimon.spark.catalog.SupportV1Function
 import org.apache.paimon.spark.catalog.functions.PaimonFunctions
 import org.apache.paimon.spark.execution.{CreatePaimonV1FunctionCommand, DescribePaimonV1FunctionCommand, DropPaimonV1FunctionCommand}

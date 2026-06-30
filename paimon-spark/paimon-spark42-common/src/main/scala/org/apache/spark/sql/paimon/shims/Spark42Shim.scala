@@ -21,9 +21,9 @@ package org.apache.spark.sql.paimon.shims
 import org.apache.paimon.data.variant.{GenericVariant, Variant}
 import org.apache.paimon.spark.catalyst.analysis.Spark4ResolutionRules
 import org.apache.paimon.spark.catalyst.parser.extensions.PaimonSpark4SqlExtensionsParser
-import org.apache.paimon.spark.execution.Spark42DescribeTablePlanning
 import org.apache.paimon.spark.commands.PaimonSpark42DynamicPartitionOverwriteCommand
 import org.apache.paimon.spark.data.{Spark4ArrayData, Spark4InternalRow, Spark4InternalRowWithBlob, SparkArrayData, SparkInternalRow}
+import org.apache.paimon.spark.execution.Spark42DescribeTablePlanning
 import org.apache.paimon.spark.format.FormatTableBatchWrite
 import org.apache.paimon.spark.rowops.PaimonCopyOnWriteScan
 import org.apache.paimon.spark.write.PaimonBatchWrite

@@ -18,7 +18,7 @@
 
 package org.apache.paimon.spark.execution
 
-import org.apache.paimon.spark.{SparkTable}
+import org.apache.paimon.spark.SparkTable
 import org.apache.paimon.spark.catalog.SparkBaseCatalog
 import org.apache.paimon.spark.catalyst.analysis.PaimonResolvePartitionSpec
 
