@@ -34,6 +34,7 @@ import org.apache.hadoop.fs.Path
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.{CTESubstitution, NamedRelation, SubstituteUnresolvedOrdinals}
+import org.apache.spark.sql.catalyst.catalog.CatalogStorageFormat
 import org.apache.spark.sql.catalyst.expressions.{Attribute, AttributeReference, Expression}
 import org.apache.spark.sql.catalyst.expressions.aggregate.AggregateExpression
 import org.apache.spark.sql.catalyst.parser.ParserInterface
@@ -273,6 +274,9 @@ class Spark3Shim extends SparkShim {
   override def planDescribeTablePartition(
       spark: SparkSession,
       plan: LogicalPlan): Option[Seq[SparkPlan]] = None
+
+  override def createEmptyCatalogStorageFormat(): CatalogStorageFormat =
+    CatalogStorageFormat(None, None, None, None, compressed = false, Map.empty)
 
   override def notMatchedBySourceActions(merge: MergeIntoTable): Seq[MergeAction] =
     MinorVersionShim.notMatchedBySourceActions(merge)

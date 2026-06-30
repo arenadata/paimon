@@ -27,6 +27,7 @@ import org.apache.paimon.types.{DataType, RowType}
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.analysis.NamedRelation
+import org.apache.spark.sql.catalyst.catalog.CatalogStorageFormat
 import org.apache.spark.sql.catalyst.expressions.{Attribute, Expression}
 import org.apache.spark.sql.catalyst.expressions.aggregate.AggregateExpression
 import org.apache.spark.sql.catalyst.parser.ParserInterface
@@ -207,6 +208,13 @@ trait SparkShim {
    * that do not have this logical node.
    */
   def planDescribeTablePartition(spark: SparkSession, plan: LogicalPlan): Option[Seq[SparkPlan]]
+
+  /**
+   * Creates an empty [[CatalogStorageFormat]] for partition describe output. Spark 4.2 added a
+   * `serdeName` field to [[CatalogStorageFormat]], so the constructor signature must be built
+   * behind this shim to avoid `NoSuchMethodError` at runtime.
+   */
+  def createEmptyCatalogStorageFormat(): CatalogStorageFormat
 
   // Spark 3.4 added `notMatchedBySourceActions` to `MergeIntoTable`. On 3.2/3.3 the field doesn't
   // exist on the AST, so this returns `Seq.empty`. Lets `paimon-spark-common` (which compiles
