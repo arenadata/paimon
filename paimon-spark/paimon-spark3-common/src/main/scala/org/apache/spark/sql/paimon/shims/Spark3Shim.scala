@@ -32,8 +32,9 @@ import org.apache.paimon.types.{DataType, RowType}
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.catalyst.FunctionIdentifier
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.analysis.{CTESubstitution, NamedRelation, SubstituteUnresolvedOrdinals}
+import org.apache.spark.sql.catalyst.analysis.{CTESubstitution, NamedRelation, SubstituteUnresolvedOrdinals, UnresolvedFunction}
 import org.apache.spark.sql.catalyst.catalog.CatalogStorageFormat
 import org.apache.spark.sql.catalyst.expressions.{Attribute, AttributeReference, Expression}
 import org.apache.spark.sql.catalyst.expressions.aggregate.AggregateExpression
@@ -58,6 +59,7 @@ import org.apache.spark.sql.internal.SQLConf
 import org.apache.spark.sql.types.{CharType, StructType, VarcharType}
 
 import java.util.{Map => JMap}
+import java.util.Locale
 
 class Spark3Shim extends SparkShim {
 
@@ -356,6 +358,17 @@ class Spark3Shim extends SparkShim {
 
   override def createVarcharType(length: Int): org.apache.spark.sql.types.DataType =
     new VarcharType(length)
+
+  override def qualifyV1FunctionIdentifier(
+      session: SparkSession,
+      ident: FunctionIdentifier): FunctionIdentifier = {
+    val funcName =
+      if (session.sessionState.conf.caseSensitiveAnalysis) ident.funcName
+      else ident.funcName.toLowerCase(Locale.ROOT)
+    FunctionIdentifier(funcName, ident.database)
+  }
+
+  override def unresolvedFunctionIgnoreNulls(u: UnresolvedFunction): Boolean = u.ignoreNulls
 
   override def toPaimonVariant(o: Object): Variant = throw new UnsupportedOperationException()
 

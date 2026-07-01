@@ -233,6 +233,12 @@ object UnResolvedPaimonV1Function {
       funcIdent: FunctionIdentifier,
       u: UnresolvedFunction,
       fun: Option[PaimonFunction]): UnResolvedPaimonV1Function = {
-    UnResolvedPaimonV1Function(funcIdent, u.arguments, u.isDistinct, u.filter, u.ignoreNulls, fun)
+    UnResolvedPaimonV1Function(
+      funcIdent,
+      u.arguments,
+      u.isDistinct,
+      u.filter,
+      SparkShimLoader.shim.unresolvedFunctionIgnoreNulls(u),
+      fun)
   }
 }

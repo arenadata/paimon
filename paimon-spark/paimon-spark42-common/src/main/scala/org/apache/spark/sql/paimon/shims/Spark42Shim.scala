@@ -33,8 +33,9 @@ import org.apache.paimon.types.{DataType, RowType}
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.Path
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.catalyst.FunctionIdentifier
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.analysis.{CTESubstitution, NamedRelation}
+import org.apache.spark.sql.catalyst.analysis.{CTESubstitution, NamedRelation, UnresolvedFunction}
 import org.apache.spark.sql.catalyst.catalog.CatalogStorageFormat
 import org.apache.spark.sql.catalyst.expressions.{Attribute, AttributeReference, Expression}
 import org.apache.spark.sql.catalyst.expressions.aggregate.AggregateExpression
@@ -57,6 +58,7 @@ import org.apache.spark.sql.types.{CharType, DataTypes, StructType, VarcharType,
 import org.apache.spark.unsafe.types.VariantVal
 
 import java.util.{Map => JMap}
+import java.util.Locale
 
 class Spark42Shim extends SparkShim {
 
@@ -352,6 +354,25 @@ class Spark42Shim extends SparkShim {
 
   override def createVarcharType(length: Int): org.apache.spark.sql.types.DataType =
     VarcharType.apply(length)
+
+  override def qualifyV1FunctionIdentifier(
+      session: SparkSession,
+      ident: FunctionIdentifier): FunctionIdentifier = {
+    val conf = session.sessionState.conf
+    val funcName =
+      if (conf.caseSensitiveAnalysis) ident.funcName
+      else ident.funcName.toLowerCase(Locale.ROOT)
+    val catalogManager = session.sessionState.catalogManager
+    val catalog = ident.catalog.orElse(Some(catalogManager.currentCatalog.name()))
+    val database = ident.database.orElse {
+      val namespace = catalogManager.currentNamespace
+      if (namespace.nonEmpty) Some(namespace.last) else None
+    }
+    FunctionIdentifier(funcName, database, catalog)
+  }
+
+  override def unresolvedFunctionIgnoreNulls(u: UnresolvedFunction): Boolean =
+    u.ignoreNulls.getOrElse(false)
 
   override def toPaimonVariant(o: Object): Variant = {
     val v = o.asInstanceOf[VariantVal]

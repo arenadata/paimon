@@ -25,8 +25,9 @@ import org.apache.paimon.table.{FileStoreTable, FormatTable}
 import org.apache.paimon.types.{DataType, RowType}
 
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.catalyst.FunctionIdentifier
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.analysis.NamedRelation
+import org.apache.spark.sql.catalyst.analysis.{NamedRelation, UnresolvedFunction}
 import org.apache.spark.sql.catalyst.catalog.CatalogStorageFormat
 import org.apache.spark.sql.catalyst.expressions.{Attribute, Expression}
 import org.apache.spark.sql.catalyst.expressions.aggregate.AggregateExpression
@@ -304,4 +305,20 @@ trait SparkShim {
 
   /** Same collation constructor change as [[createCharType]] for `VarcharType`. */
   def createVarcharType(length: Int): org.apache.spark.sql.types.DataType
+
+  /**
+   * Qualifies a persistent V1 function identifier before registration in
+   * [[org.apache.spark.sql.catalyst.catalog.PaimonV1FunctionRegistry]]. Spark 4.2 requires 3-part
+   * identifiers (catalog.database.function) in
+   * [[org.apache.spark.sql.catalyst.analysis.SimpleFunctionRegistry]].
+   */
+  def qualifyV1FunctionIdentifier(
+      session: SparkSession,
+      ident: FunctionIdentifier): FunctionIdentifier
+
+  /**
+   * Reads the IGNORE NULLS flag from an unresolved function. Spark 4.2 changed
+   * [[UnresolvedFunction.ignoreNulls]] from `Boolean` to `Option[Boolean]`.
+   */
+  def unresolvedFunctionIgnoreNulls(u: UnresolvedFunction): Boolean
 }
