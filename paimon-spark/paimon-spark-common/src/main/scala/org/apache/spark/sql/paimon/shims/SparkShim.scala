@@ -35,7 +35,7 @@ import org.apache.spark.sql.catalyst.parser.ParserInterface
 import org.apache.spark.sql.catalyst.plans.logical.{Assignment, CTERelationRef, DescribeRelation, InsertAction, LogicalPlan, MergeAction, MergeIntoTable, OverwriteByExpression, OverwritePartitionsDynamic, SubqueryAlias, TableSpec, UnresolvedWith, UpdateAction}
 import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.catalyst.util.ArrayData
-import org.apache.spark.sql.connector.catalog.{Column, Identifier, StagingTableCatalog, Table, TableCatalog}
+import org.apache.spark.sql.connector.catalog.{CatalogPlugin, Column, Identifier, StagingTableCatalog, Table, TableCatalog}
 import org.apache.spark.sql.connector.expressions.Transform
 import org.apache.spark.sql.connector.write.BatchWrite
 import org.apache.spark.sql.execution.SparkPlan
@@ -205,6 +205,40 @@ trait SparkShim {
       query: LogicalPlan,
       writeOptions: Map[String, String],
       withSchemaEvolution: Boolean = false): LogicalPlan
+
+  /**
+   * CatalogManager accessors. ADS Spark makes `CatalogManager` an interface while Apache Spark 4.1
+   * keeps it as a class; call sites in `paimon-spark-common` must go through these shims so bytecode
+   * uses the correct invoke instruction.
+   */
+  def currentCatalog(spark: SparkSession): CatalogPlugin
+
+  def currentNamespace(spark: SparkSession): Array[String]
+
+  def catalog(spark: SparkSession, name: String): CatalogPlugin
+
+  /** Like [[catalog]], but returns `null` when `name` is not a registered catalog. */
+  def catalogOrNull(spark: SparkSession, name: String): CatalogPlugin
+
+  /**
+   * SessionCatalog.isBuiltinFunction. ADS takes a function name `String`; Apache Spark 4.1 takes
+   * [[FunctionIdentifier]].
+   */
+  def isBuiltinFunction(spark: SparkSession, name: String): Boolean
+
+  def isTemporaryFunction(spark: SparkSession, ident: FunctionIdentifier): Boolean
+
+  def isTempView(spark: SparkSession, nameParts: Seq[String]): Boolean
+
+  /**
+   * Rows from Spark's DescribeTableExec. ADS added `catalogName` / `identifier` constructor args.
+   */
+  def describeTableRows(
+      output: Seq[Attribute],
+      catalogName: String,
+      identifier: Identifier,
+      table: Table,
+      isExtended: Boolean): Array[InternalRow]
 
   /**
    * Returns the partition spec for [[DescribeRelation]]. Spark 4.2 removed `partitionSpec` from

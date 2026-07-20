@@ -35,6 +35,7 @@ import org.apache.spark.sql.connector.expressions.Transform
 import org.apache.spark.sql.execution.streaming.Sink
 import org.apache.spark.sql.sources.{BaseRelation, CreatableRelationProvider, DataSourceRegister, StreamSinkProvider}
 import org.apache.spark.sql.streaming.OutputMode
+import org.apache.spark.sql.paimon.shims.SparkShimLoader
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.util.CaseInsensitiveStringMap
 
@@ -105,7 +106,8 @@ class SparkSource
       val catalogName = options.get(CATALOG)
       val dataBaseName = Option(options.get(DATABASE)).getOrElse(CatalogUtils.database(path))
       val tableName = Option(options.get(TABLE)).getOrElse(CatalogUtils.table(path))
-      val sparkCatalog = sessionState.catalogManager.catalog(catalogName).asInstanceOf[TableCatalog]
+      val sparkCatalog =
+        SparkShimLoader.shim.catalog(PaimonSparkSession.active, catalogName).asInstanceOf[TableCatalog]
       sparkCatalog
         .loadTable(SparkIdentifier.of(Array(dataBaseName), tableName))
         .asInstanceOf[SparkTable]
