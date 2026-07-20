@@ -208,8 +208,8 @@ trait SparkShim {
 
   /**
    * CatalogManager accessors. ADS Spark makes `CatalogManager` an interface while Apache Spark 4.1
-   * keeps it as a class; call sites in `paimon-spark-common` must go through these shims so bytecode
-   * uses the correct invoke instruction.
+   * keeps it as a class; call sites in `paimon-spark-common` must go through these shims so
+   * bytecode uses the correct invoke instruction.
    */
   def currentCatalog(spark: SparkSession): CatalogPlugin
 
@@ -230,9 +230,7 @@ trait SparkShim {
 
   def isTempView(spark: SparkSession, nameParts: Seq[String]): Boolean
 
-  /**
-   * Rows from Spark's DescribeTableExec. ADS added `catalogName` / `identifier` constructor args.
-   */
+  /** Rows from Spark's DescribeTableExec. ADS added `catalogName` / `identifier` constructor args. */
   def describeTableRows(
       output: Seq[Attribute],
       catalogName: String,
