@@ -119,7 +119,8 @@ class RollbackStagedTable implements StagedTable, SupportsRead, SupportsWrite, S
         return writeStarted;
     }
 
-    @Override
+    // No @Override: absent on Spark 3.x StagedTable. Required at runtime on ADS Spark 4.2
+    // where StagedTable and TruncatableTable both define conflicting defaults.
     public CustomTaskMetric[] reportDriverMetrics() {
         return new CustomTaskMetric[0];
     }
