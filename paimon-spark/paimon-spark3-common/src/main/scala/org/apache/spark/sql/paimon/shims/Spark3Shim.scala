@@ -52,7 +52,7 @@ import org.apache.spark.sql.connector.expressions.Transform
 import org.apache.spark.sql.connector.write.BatchWrite
 import org.apache.spark.sql.execution.{SparkFormatTable, SparkPlan}
 import org.apache.spark.sql.execution.datasources.{PartitioningAwareFileIndex, PartitionSpec}
-import org.apache.spark.sql.execution.datasources.v2.{AtomicReplaceTableAsSelectExec, AtomicReplaceTableExec, ReplaceTableAsSelectExec, ReplaceTableExec}
+import org.apache.spark.sql.execution.datasources.v2.{AtomicReplaceTableAsSelectExec, AtomicReplaceTableExec, CreateTableAsSelectExec, ReplaceTableAsSelectExec, ReplaceTableExec}
 import org.apache.spark.sql.execution.datasources.v2.DataSourceV2Relation
 import org.apache.spark.sql.execution.streaming.{FileStreamSink, MetadataLogFileIndex}
 import org.apache.spark.sql.internal.SQLConf
@@ -95,6 +95,24 @@ class Spark3Shim extends SparkShim {
       partitions: Array[Transform],
       properties: JMap[String, String]): Table = {
     tableCatalog.createTable(ident, schema, partitions, properties)
+  }
+
+  override def createCreateTableAsSelectExec(
+      catalog: TableCatalog,
+      ident: Identifier,
+      partitioning: Seq[Transform],
+      query: LogicalPlan,
+      tableSpec: TableSpec,
+      writeOptions: Map[String, String],
+      ifNotExists: Boolean): SparkPlan = {
+    CreateTableAsSelectExec(
+      catalog,
+      ident,
+      partitioning,
+      query,
+      tableSpec,
+      writeOptions,
+      ifNotExists)
   }
 
   override def createReplaceTableAsSelectExec(

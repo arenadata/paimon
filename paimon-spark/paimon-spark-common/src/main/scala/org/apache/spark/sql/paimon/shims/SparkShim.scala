@@ -73,6 +73,15 @@ trait SparkShim {
       partitions: Array[Transform],
       properties: JMap[String, String]): Table
 
+  def createCreateTableAsSelectExec(
+      catalog: TableCatalog,
+      ident: Identifier,
+      partitioning: Seq[Transform],
+      query: LogicalPlan,
+      tableSpec: TableSpec,
+      writeOptions: Map[String, String],
+      ifNotExists: Boolean): SparkPlan
+
   def createReplaceTableAsSelectExec(
       catalog: TableCatalog,
       ident: Identifier,
