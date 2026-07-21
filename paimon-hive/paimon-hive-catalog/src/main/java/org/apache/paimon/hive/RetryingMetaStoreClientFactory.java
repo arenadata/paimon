@@ -18,6 +18,8 @@
 
 package org.apache.paimon.hive;
 
+import org.apache.paimon.annotation.VisibleForTesting;
+
 import org.apache.paimon.shade.guava30.com.google.common.collect.ImmutableMap;
 
 import org.apache.hadoop.conf.Configuration;
@@ -160,12 +162,42 @@ public class RetryingMetaStoreClientFactory {
                 IMetaStoreClient client = supplier.get(getProxy, hiveConf, clientClassName);
                 return isNullOrWhitespaceOnly(hiveConf.get(HiveConf.ConfVars.METASTOREURIS.varname))
                         ? client
-                        : HiveMetaStoreClient.newSynchronizedClient(client);
+                        : newSynchronizedClient(client);
             } catch (Exception e) {
                 failToCreate.addSuppressed(e);
             }
         }
         throw failToCreate;
+    }
+
+    private static final String HIVE4_SYNCHRONIZED_CLIENT_CLASS =
+            "org.apache.hadoop.hive.metastore.client.SynchronizedMetaStoreClient";
+
+    /**
+     * Wraps the client in a synchronized proxy. Hive 4 moved the factory method from {@link
+     * HiveMetaStoreClient} to {@code
+     * org.apache.hadoop.hive.metastore.client.SynchronizedMetaStoreClient}, so it is resolved
+     * reflectively to stay compatible with both.
+     */
+    private static IMetaStoreClient newSynchronizedClient(IMetaStoreClient client) {
+        return newSynchronizedClient(client, HIVE4_SYNCHRONIZED_CLIENT_CLASS);
+    }
+
+    @VisibleForTesting
+    static IMetaStoreClient newSynchronizedClient(IMetaStoreClient client, String factoryClass) {
+        try {
+            Class<?> clazz = Class.forName(factoryClass, true, JavaUtils.getClassLoader());
+            return (IMetaStoreClient)
+                    clazz.getMethod("newSynchronizedClient", IMetaStoreClient.class)
+                            .invoke(null, client);
+        } catch (ClassNotFoundException e) {
+            return HiveMetaStoreClient.newSynchronizedClient(client);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(
+                    "Failed to create synchronized metastore client", e.getCause());
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to create synchronized metastore client", e);
+        }
     }
 
     /** Function interface for creating hive metastore proxy. */
