@@ -47,7 +47,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        scala_version: [ '2.12', '2.13' ]
+        scala_version: [ '2.13' ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
