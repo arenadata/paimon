@@ -32,7 +32,7 @@ under the License.
     <name>Paimon : Iceberg</name>
 
     <properties>
-        <target.java.version>11</target.java.version>
+        <target.java.version>17</target.java.version>
         <iceberg.version>1.8.1</iceberg.version>
         <flink.version>${paimon-flink-common.flink.version}</flink.version>
         <iceberg.flink.version>1.19</iceberg.flink.version>

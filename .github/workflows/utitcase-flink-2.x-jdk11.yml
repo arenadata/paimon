@@ -16,7 +16,7 @@
 # limitations under the License.
 ################################################################################
 
-name: UTCase and ITCase Flink 2.x on JDK 11
+name: UTCase and ITCase Flink 2.x on JDK 17
 
 on:
   push:
