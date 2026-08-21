@@ -31,7 +31,7 @@ on:
       - '.github/workflows/paimon-python-checks.yml'
 
 env:
-  JDK_VERSION: 8
+  JDK_VERSION: 17
   MAVEN_OPTS: -Dmaven.wagon.httpconnectionManager.ttlSeconds=30 -Dmaven.wagon.http.retryHandler.requestSentEnabled=true
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   LUMINA_DATA_VERSION: 0.1.0

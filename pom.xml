@@ -408,7 +408,8 @@ under the License.
                 <module>paimon-spark/paimon-spark-3.2</module>
             </modules>
             <properties>
-                <!-- ADH Spark3 is Scala 2.13; this fork defaults Spark 3.x to 2.13. -->
+                <!-- ADH Spark3 is Scala 2.13 / JDK 17; this fork defaults Spark 3.x to the same. -->
+                <target.java.version>17</target.java.version>
                 <scala.binary.version>2.13</scala.binary.version>
                 <scala.version>${scala213.version}</scala.version>
                 <paimon-spark-common.spark.version>3.5.4.4-4.3.0-2</paimon-spark-common.spark.version>
