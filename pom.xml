@@ -88,14 +88,16 @@ under the License.
         <paimon.shade.netty.version>4.1.100.Final</paimon.shade.netty.version>
         <antlr4.version>4.9.3</antlr4.version>
         <hadoop.version>2.8.5</hadoop.version>
-        <scala.binary.version>2.12</scala.binary.version>
+        <!-- ADH Spark is Scala 2.13 only (spark-sql_2.13:3.5.4.4-4.3.0-2). Do not default to 2.12:
+             spark3's activeByDefault is skipped whenever another profile activates (e.g. iceberg on JDK 17). -->
+        <scala.binary.version>2.13</scala.binary.version>
         <!-- TODO: Update default Flink to 2.x after Paimon updates default Java to 11 -->
         <paimon-flinkx-common>paimon-flink1-common</paimon-flinkx-common>
         <paimon-flink-common.flink.version>1.20.1</paimon-flink-common.flink.version>
         <flink.scala.binary.version>2.12</flink.scala.binary.version>
         <scala212.version>2.12.18</scala212.version>
         <scala213.version>2.13.16</scala213.version>
-        <scala.version>${scala212.version}</scala.version>
+        <scala.version>${scala213.version}</scala.version>
         <codegen.scala.version>${scala212.version}</codegen.scala.version>
         <snappy.version>1.1.10.8</snappy.version>
         <airlift.version>2.0.3</airlift.version>
