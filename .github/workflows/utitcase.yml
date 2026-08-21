@@ -29,7 +29,7 @@ on:
       - 'paimon-core/src/test/java/org/apache/paimon/JavaPyE2ETest.java'
 
 env:
-  JDK_VERSION: 17
+  JDK_VERSION: 8
   MAVEN_OPTS: -Dmaven.wagon.httpconnectionManager.ttlSeconds=30 -Dmaven.wagon.http.retryHandler.requestSentEnabled=true
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -72,7 +72,7 @@ jobs:
           
           TEST_MODULES="!paimon-e2e-tests,"
           for suffix in ut 3.5 3.4 3.3 3.2; do
-            TEST_MODULES+="!org.apache.paimon:paimon-spark-${suffix}_2.13,"
+            TEST_MODULES+="!org.apache.paimon:paimon-spark-${suffix}_2.12,"
           done
           TEST_MODULES="${TEST_MODULES%,}"
           mvn -T 2C -B -ntp clean install -pl "${TEST_MODULES}" -Pskip-paimon-flink-tests -Duser.timezone=$jvm_timezone

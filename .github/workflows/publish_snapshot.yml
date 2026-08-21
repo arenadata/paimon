@@ -25,7 +25,7 @@ on:
   workflow_dispatch:
 
 env:
-  JDK_VERSION: 17
+  JDK_VERSION: 8
   MAVEN_OPTS: -Dmaven.wagon.httpconnectionManager.ttlSeconds=30 -Dmaven.wagon.http.retryHandler.requestSentEnabled=true
 
 concurrency:
@@ -39,7 +39,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-      # ADH Spark3 is Java 17; spark3 profile requires JDK 17
       - name: Set up JDK ${{ env.JDK_VERSION }}
         uses: actions/setup-java@v5
         with:

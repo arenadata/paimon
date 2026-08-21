@@ -16,7 +16,7 @@
 # limitations under the License.
 ################################################################################
 
-name: UTCase and ITCase Others on JDK 17
+name: UTCase and ITCase Others on JDK 11
 
 on:
   push:
@@ -29,7 +29,7 @@ on:
       - 'paimon-core/src/test/java/org/apache/paimon/JavaPyE2ETest.java'
 
 env:
-  JDK_VERSION: 17
+  JDK_VERSION: 11
   MAVEN_OPTS: -Dmaven.wagon.httpconnectionManager.ttlSeconds=30 -Dmaven.wagon.http.retryHandler.requestSentEnabled=true
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -62,7 +62,7 @@ jobs:
           echo "JVM timezone is set to $jvm_timezone"
           test_modules="!paimon-e2e-tests,!org.apache.paimon:paimon-hive-connector-3.1,"
           for suffix in ut 3.5 3.4 3.3 3.2; do
-          test_modules+="!org.apache.paimon:paimon-spark-${suffix}_2.13,"
+          test_modules+="!org.apache.paimon:paimon-spark-${suffix}_2.12,"
           done
           test_modules="${test_modules%,}"
           mvn -T 1C -B -ntp clean install -pl "${test_modules}" -Pflink1,spark3 -Pskip-paimon-flink-tests -Duser.timezone=$jvm_timezone

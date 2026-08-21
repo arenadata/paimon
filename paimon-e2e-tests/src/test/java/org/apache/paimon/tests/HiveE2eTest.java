@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.condition.JRE.JAVA_11;
-import static org.junit.jupiter.api.condition.JRE.JAVA_17;
 
 /**
  * Tests for reading paimon from Hive.
@@ -39,7 +38,7 @@ import static org.junit.jupiter.api.condition.JRE.JAVA_17;
  * <p>NOTE: This test runs a complete Hadoop cluster in Docker, which requires a lot of memory. If
  * you're running this test locally, make sure that the memory limit of your Docker is at least 8GB.
  */
-@DisabledOnJre({JAVA_11, JAVA_17})
+@DisabledOnJre(JAVA_11)
 public class HiveE2eTest extends E2eReaderTestBase {
 
     private static final Logger LOG = LoggerFactory.getLogger(HiveE2eTest.class);

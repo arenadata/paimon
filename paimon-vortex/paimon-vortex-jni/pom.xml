@@ -32,7 +32,7 @@ under the License.
     <name>Paimon : Vortex JNI</name>
 
     <properties>
-        <target.java.version>17</target.java.version>
+        <target.java.version>1.8</target.java.version>
         <vortex.jni.version>0.73.0</vortex.jni.version>
         <immutables.version>2.10.1</immutables.version>
         <!-- vortex-jni uses shaded Guava, skip spotless/checkstyle rewriting -->
