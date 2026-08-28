@@ -27,6 +27,7 @@ on:
       - 'paimon-vector/**'
 
 env:
+  # Native JNI tests crash on JDK 17 (double-free in libpaimon_vindex_jni).
   JDK_VERSION: 8
   MAVEN_OPTS: -Dmaven.wagon.httpconnectionManager.ttlSeconds=30 -Dmaven.wagon.http.retryHandler.requestSentEnabled=true
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -76,7 +77,8 @@ jobs:
       - name: Build and test vector index modules
         timeout-minutes: 30
         run: |
-          mvn -T 2C -B -ntp clean install -DskipTests
-          mvn -B -ntp verify -pl paimon-vector/paimon-vector-jni,paimon-vector/paimon-vector-index -Dcheckstyle.skip=true -Dspotless.check.skip=true
+          VECTOR_MODULES=paimon-vector/paimon-vector-jni,paimon-vector/paimon-vector-index
+          mvn -T 2C -B -ntp clean install -DskipTests -pl "${VECTOR_MODULES}" -am
+          mvn -B -ntp verify -pl "${VECTOR_MODULES}" -Dcheckstyle.skip=true -Dspotless.check.skip=true
         env:
           MAVEN_OPTS: -Xmx4096m

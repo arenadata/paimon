@@ -49,7 +49,7 @@ jobs:
       - name: Set JDK
         uses: actions/setup-java@v5
         with:
-          java-version: 8
+          java-version: 17
           distribution: 'temurin'
           server-id: arenadata
           server-username: GITHUB_ACTOR

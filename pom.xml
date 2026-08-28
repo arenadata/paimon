@@ -504,10 +504,25 @@ under the License.
             <properties>
                 <scala.binary.version>2.13</scala.binary.version>
                 <scala.version>${scala213.version}</scala.version>
+                <!-- ADH Spark 3.5 is published only as _2.13 / Java 17. -->
+                <paimon-spark-common.spark.version>3.5.4.4-4.3.0-2</paimon-spark-common.spark.version>
             </properties>
             <activation>
                 <property>
                     <name>scala-2.13</name>
+                </property>
+            </activation>
+        </profile>
+
+        <profile>
+            <id>scala-2.12</id>
+            <properties>
+                <scala.binary.version>2.12</scala.binary.version>
+                <scala.version>${scala212.version}</scala.version>
+            </properties>
+            <activation>
+                <property>
+                    <name>scala-2.12</name>
                 </property>
             </activation>
         </profile>
@@ -537,7 +552,7 @@ under the License.
                             <configuration>
                                 <release>8</release>
                                 <additionalJOptions combine.children="append">
-                                    <!-- Suppress the error that is accepted by JDK 8 but not by JDK 11. -->
+                                    <!-- Suppress the error that is accepted by JDK 8 but not by later JDKs. -->
                                     <additionalJOption>--ignore-source-errors</additionalJOption>
                                 </additionalJOptions>
                             </configuration>

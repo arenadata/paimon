@@ -39,8 +39,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-      # temporarily publish the jdk8 version to maven
-      # lately when jdk is deprecated, we need update it to jdk11
       - name: Set up JDK ${{ env.JDK_VERSION }}
         uses: actions/setup-java@v5
         with:
@@ -66,7 +64,5 @@ jobs:
           echo "</server></servers></settings>" >> $tmp_settings
           
           mvn --settings $tmp_settings -ntp clean deploy -Dgpg.skip -Drat.skip -DskipTests -Papache-release,spark3,flink1
-          # deploy for scala 2.13
-          mvn --settings $tmp_settings -ntp clean deploy -Dgpg.skip -Drat.skip -DskipTests -Papache-release,spark3,scala-2.13,flink1 -pl org.apache.paimon:paimon-spark-common_2.13,org.apache.paimon:paimon-spark3-common_2.13,org.apache.paimon:paimon-spark-3.2_2.13,org.apache.paimon:paimon-spark-3.3_2.13,org.apache.paimon:paimon-spark-3.4_2.13,org.apache.paimon:paimon-spark-3.5_2.13
 
           rm $tmp_settings

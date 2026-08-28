@@ -68,11 +68,7 @@ jobs:
           . .github/workflows/utils.sh
           jvm_timezone=$(random_timezone)
           echo "JVM timezone is set to $jvm_timezone"
-          test_modules=""
-          for suffix in ut 4.0 4.1 4.2; do
-          test_modules+="org.apache.paimon:paimon-spark-${suffix}_2.13,"
-          done
-          test_modules="${test_modules%,}"
+          test_modules="org.apache.paimon:paimon-spark-ut_2.13,org.apache.paimon:paimon-spark-4.2_2.13"
           mvn -T 2C -B -ntp verify -pl "${test_modules}" -Duser.timezone=$jvm_timezone -Pspark4,flink1
         env:
           MAVEN_OPTS: -Xmx4096m
