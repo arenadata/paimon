@@ -1724,6 +1724,8 @@ public class HiveCatalog extends AbstractCatalog {
         table.setSd(sd);
         if (schema.comment() != null) {
             table.getParameters().put(COMMENT_PROP, schema.comment());
+        } else {
+            table.getParameters().remove(COMMENT_PROP);
         }
 
         // update location
