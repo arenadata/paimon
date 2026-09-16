@@ -66,6 +66,32 @@ abstract class DDLWithHiveCatalogTestBase extends PaimonHiveTestBase {
     }
   }
 
+  test("Paimon DDL with hive catalog: create table comment round trip") {
+    Seq(sparkCatalogName, paimonHiveCatalogName).foreach {
+      catalogName =>
+        spark.sql(s"USE $catalogName")
+        withDatabase("paimon_db") {
+          spark.sql("CREATE DATABASE paimon_db")
+          spark.sql("USE paimon_db")
+          withTable("t_comment") {
+            spark.sql("""
+                        |CREATE TABLE t_comment (id INT)
+                        |USING paimon
+                        |COMMENT 'hello paimon'
+                        |""".stripMargin)
+            Assertions.assertEquals(
+              "hello paimon",
+              loadTable("paimon_db", "t_comment").schema().comment())
+            val showCreate =
+              spark.sql("SHOW CREATE TABLE t_comment").collect().head.getString(0)
+            Assertions.assertTrue(
+              showCreate.contains("COMMENT 'hello paimon'"),
+              s"SHOW CREATE TABLE missing comment: $showCreate")
+          }
+        }
+    }
+  }
+
   test("Paimon DDL with hive catalog: drop partition for paimon table sparkCatalogName") {
     Seq(paimonHiveCatalogName).foreach {
       catalogName =>

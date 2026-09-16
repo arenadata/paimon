@@ -200,6 +200,34 @@ public class CreateTableITCase extends HiveTestBase {
     }
 
     @Test
+    public void testCreateTableWithTableComment() {
+        String tableName = "table_with_comment";
+        hiveShell.execute("SET hive.metastore.warehouse.dir=" + path);
+        String hiveSql =
+                String.join(
+                        "\n",
+                        Arrays.asList(
+                                "CREATE TABLE " + tableName + " (",
+                                "col1 "
+                                        + TypeInfoFactory.intTypeInfo.getTypeName()
+                                        + " COMMENT 'The col1 field'",
+                                ")",
+                                "COMMENT 'hello paimon'",
+                                "STORED BY '" + PaimonStorageHandler.class.getName() + "'"));
+        assertThatCode(() -> hiveShell.execute(hiveSql)).doesNotThrowAnyException();
+
+        Identifier identifier = Identifier.create(DATABASE_TEST, tableName);
+        Path tablePath = newTableLocation(path, identifier);
+        Optional<TableSchema> tableSchema =
+                new SchemaManager(LocalFileIO.create(), tablePath).latest();
+        assertThat(tableSchema).isPresent();
+        assertThat(tableSchema.get().comment()).isEqualTo("hello paimon");
+
+        List<String> result = hiveShell.executeQuery("SHOW CREATE TABLE " + tableName);
+        assertThat(String.join("\n", result)).contains("hello paimon");
+    }
+
+    @Test
     public void testLowerTableName() throws Catalog.TableNotExistException {
         // Use `partitioned by` to create hive partition table
         String tableName = "UPPER_NAME";
