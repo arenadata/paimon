@@ -1887,7 +1887,8 @@ public class HiveCatalog extends AbstractCatalog {
      * ofs://omservice}), a trailing {@code /} is added before Hadoop {@code Path.makeQualified} so
      * relative warehouses join with a slash instead of concatenating onto the authority.
      *
-     * <p>Already-schemed locations such as {@code hdfs:///apps/paimon/warehouse} are left unchanged.
+     * <p>Already-schemed locations such as {@code hdfs:///apps/paimon/warehouse} are left
+     * unchanged.
      */
     @VisibleForTesting
     static Path qualifyWarehousePath(String warehouseStr, URI defaultUri) {
