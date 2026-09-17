@@ -418,7 +418,8 @@ public class CatalogTableITCase extends CatalogITCaseBase {
                         "SELECT schema_id, fields, partition_keys, "
                                 + "primary_keys, options, `comment` FROM T1$schemas s");
         assertThat(result.toString())
-                .isEqualTo("[+I[0, [{\"id\":0,\"name\":\"a\",\"type\":\"INT\"}], [], [], {}, null]]");
+                .isEqualTo(
+                        "[+I[0, [{\"id\":0,\"name\":\"a\",\"type\":\"INT\"}], [], [], {}, null]]");
     }
 
     @Test
@@ -431,7 +432,8 @@ public class CatalogTableITCase extends CatalogITCaseBase {
                         "SELECT schema_id, fields, partition_keys, "
                                 + "primary_keys, options, `comment` FROM t1$schemas s");
         assertThat(result.toString())
-                .isEqualTo("[+I[0, [{\"id\":0,\"name\":\"a\",\"type\":\"INT\"}], [], [], {}, null]]");
+                .isEqualTo(
+                        "[+I[0, [{\"id\":0,\"name\":\"a\",\"type\":\"INT\"}], [], [], {}, null]]");
         List<Row> data = sql("SELECT * FROM t1");
         assertThat(data).containsExactlyInAnyOrder(Row.of(1), Row.of(2));
 
