@@ -1106,9 +1106,19 @@ public class FlinkCatalog extends AbstractCatalog {
         // This is what Flink SQL needs, the storage itself does not need them
         options.putAll(columnOptions(schema));
 
+        String comment = catalogTable.getComment();
+        if (StringUtils.isNullOrWhitespaceOnly(comment)) {
+            comment = options.remove(COMMENT_PROP);
+        } else {
+            options.remove(COMMENT_PROP);
+        }
+        if (StringUtils.isNullOrWhitespaceOnly(comment)) {
+            comment = null;
+        }
+
         Schema.Builder schemaBuilder =
                 Schema.newBuilder()
-                        .comment(catalogTable.getComment())
+                        .comment(comment)
                         .options(options)
                         .primaryKey(
                                 schema.getPrimaryKey()

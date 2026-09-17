@@ -85,6 +85,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -793,10 +795,28 @@ public class HiveCatalog extends AbstractCatalog {
     private TableSchema loadTableSchema(Identifier identifier, Table table)
             throws TableNotExistException {
         if (isPaimonTable(table)) {
-            return tableSchemaInFileSystem(
-                            getTableLocation(identifier, table),
-                            identifier.getBranchNameOrDefault())
-                    .orElseThrow(() -> new TableNotExistException(identifier));
+            TableSchema schema =
+                    tableSchemaInFileSystem(
+                                    getTableLocation(identifier, table),
+                                    identifier.getBranchNameOrDefault())
+                            .orElseThrow(() -> new TableNotExistException(identifier));
+            if (schema.comment() == null && table.getParameters() != null) {
+                String hmsComment = table.getParameters().get(COMMENT_PROP);
+                if (hmsComment != null) {
+                    schema =
+                            new TableSchema(
+                                    schema.version(),
+                                    schema.id(),
+                                    schema.fields(),
+                                    schema.highestFieldId(),
+                                    schema.partitionKeys(),
+                                    schema.primaryKeys(),
+                                    schema.options(),
+                                    hmsComment,
+                                    schema.timeMillis());
+                }
+            }
+            return schema;
         }
 
         if (!formatTableDisabled()) {
@@ -1704,6 +1724,8 @@ public class HiveCatalog extends AbstractCatalog {
         table.setSd(sd);
         if (schema.comment() != null) {
             table.getParameters().put(COMMENT_PROP, schema.comment());
+        } else {
+            table.getParameters().remove(COMMENT_PROP);
         }
 
         // update location
@@ -1842,14 +1864,10 @@ public class HiveCatalog extends AbstractCatalog {
             warehouseStr =
                     hiveConf.get(METASTOREWAREHOUSE.varname, METASTOREWAREHOUSE.defaultStrVal);
         }
-        Path warehouse = new Path(warehouseStr);
-        Path uri =
-                warehouse.toUri().getScheme() == null
-                        ? new Path(FileSystem.getDefaultUri(hiveConf))
-                        : warehouse;
+        Path warehouse = qualifyWarehousePath(warehouseStr, FileSystem.getDefaultUri(hiveConf));
         FileIO fileIO;
         try {
-            fileIO = FileIO.get(uri, context);
+            fileIO = FileIO.get(warehouse, context);
             fileIO.checkOrMkdirs(warehouse);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -1861,6 +1879,44 @@ public class HiveCatalog extends AbstractCatalog {
                 options.get(HiveCatalogOptions.METASTORE_CLIENT_CLASS),
                 context,
                 warehouse.toString());
+    }
+
+    /**
+     * Qualifies a scheme-less warehouse against {@code fs.defaultFS} so later {@link FileIO#get}
+     * calls keep the remote filesystem (HDFS {@code hdfs://}, Ozone {@code ofs://}, ...).
+     *
+     * <p>When {@code fs.defaultFS} has an empty path (typical: {@code hdfs://nn:8020} or {@code
+     * ofs://omservice}), a trailing {@code /} is added before Hadoop {@code Path.makeQualified} so
+     * relative warehouses join with a slash instead of concatenating onto the authority.
+     *
+     * <p>Already-schemed locations such as {@code hdfs:///apps/paimon/warehouse} are left
+     * unchanged.
+     */
+    @VisibleForTesting
+    static Path qualifyWarehousePath(String warehouseStr, URI defaultUri) {
+        Path warehouse = new Path(warehouseStr);
+        if (warehouse.toUri().getScheme() != null) {
+            return warehouse;
+        }
+        String defaultPath = defaultUri.getPath();
+        if (defaultPath == null || defaultPath.isEmpty()) {
+            try {
+                defaultUri =
+                        new URI(
+                                defaultUri.getScheme(),
+                                defaultUri.getAuthority(),
+                                "/",
+                                defaultUri.getQuery(),
+                                defaultUri.getFragment());
+            } catch (URISyntaxException e) {
+                throw new IllegalArgumentException("Invalid fs.defaultFS: " + defaultUri, e);
+            }
+        }
+        org.apache.hadoop.fs.Path hadoopWarehouse = new org.apache.hadoop.fs.Path(warehouseStr);
+        org.apache.hadoop.fs.Path qualified =
+                hadoopWarehouse.makeQualified(
+                        defaultUri, new org.apache.hadoop.fs.Path(defaultUri));
+        return new Path(qualified.toString());
     }
 
     public static HiveConf createHiveConf(CatalogContext context) {

@@ -919,6 +919,24 @@ public class SchemaChangeITCase extends CatalogITCaseBase {
     }
 
     @Test
+    public void testCreateTableComment() throws Exception {
+        sql("CREATE TABLE T_COMMENT_CLAUSE (a INT) COMMENT 'my comment'");
+        assertThat(table("T_COMMENT_CLAUSE").getComment()).isEqualTo("my comment");
+        assertThat(paimonTable("T_COMMENT_CLAUSE").comment()).hasValue("my comment");
+        assertThat(sql("SELECT `comment` FROM T_COMMENT_CLAUSE$schemas").toString())
+                .contains("my comment");
+        assertThat(sql("SHOW CREATE TABLE T_COMMENT_CLAUSE").toString())
+                .contains("COMMENT 'my comment'");
+
+        sql("CREATE TABLE T_COMMENT_OPTION (a INT) WITH ('comment' = 'opt comment')");
+        assertThat(table("T_COMMENT_OPTION").getComment()).isEqualTo("opt comment");
+        assertThat(paimonTable("T_COMMENT_OPTION").comment()).hasValue("opt comment");
+        assertThat(paimonTable("T_COMMENT_OPTION").options()).doesNotContainKey("comment");
+        assertThat(sql("SHOW CREATE TABLE T_COMMENT_OPTION").toString())
+                .contains("COMMENT 'opt comment'");
+    }
+
+    @Test
     public void testAlterTableSchema() {
         sql("CREATE TABLE T (a STRING, b STRING COMMENT 'from column b')");
         List<String> result =

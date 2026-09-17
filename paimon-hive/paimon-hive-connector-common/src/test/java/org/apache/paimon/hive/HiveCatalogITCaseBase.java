@@ -725,7 +725,8 @@ public abstract class HiveCatalogITCaseBase {
                         "SELECT schema_id, fields, partition_keys, "
                                 + "primary_keys, options, `comment`  FROM t1$schemas s");
         assertThat(result.toString())
-                .isEqualTo("[+I[0, [{\"id\":0,\"name\":\"a\",\"type\":\"INT\"}], [], [], {}, ]]");
+                .isEqualTo(
+                        "[+I[0, [{\"id\":0,\"name\":\"a\",\"type\":\"INT\"}], [], [], {}, null]]");
         List<Row> data = collect("SELECT * FROM t1");
         assertThat(data).contains(Row.of(1));
 
@@ -758,7 +759,7 @@ public abstract class HiveCatalogITCaseBase {
         assertThat(resultPartition.toString())
                 .isEqualTo(
                         "[+I[0, [{\"id\":0,\"name\":\"user_id\",\"type\":\"BIGINT\"},{\"id\":1,\"name\":\"item_id\",\"type\":\"BIGINT\"},{\"id\":2,\"name\":\"behavior\",\"type\":\"STRING\"}"
-                                + ",{\"id\":3,\"name\":\"dt\",\"type\":\"STRING\"},{\"id\":4,\"name\":\"hh\",\"type\":\"STRING\"}], [\"dt\"], [], {}, ]]");
+                                + ",{\"id\":3,\"name\":\"dt\",\"type\":\"STRING\"},{\"id\":4,\"name\":\"hh\",\"type\":\"STRING\"}], [\"dt\"], [], {}, null]]");
         List<Row> dataPartition = collect("SELECT * FROM t1_p");
         assertThat(dataPartition.toString()).isEqualTo("[+I[1, 2, a, 2023-02-19, 12]]");
 
