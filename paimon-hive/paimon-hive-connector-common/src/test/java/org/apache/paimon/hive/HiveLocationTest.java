@@ -99,6 +99,7 @@ public class HiveLocationTest {
 
         HiveCatalogFactory hiveCatalogFactory = new HiveCatalogFactory();
         catalog = (HiveCatalog) hiveCatalogFactory.create(catalogContext);
+        assertThat(new Path(catalog.warehouse()).toUri().getPath()).isEqualTo(objectStorePath);
 
         hmsClient = catalog.getHmsClient();
     }
@@ -129,7 +130,7 @@ public class HiveLocationTest {
             assertThat(hmsClient.getDatabase(db)).isNotNull();
 
             Path actual = catalog.newDatabasePath(db);
-            Path expected = new Path(this.objectStorePath + "/" + db + ".db");
+            Path expected = AbstractCatalog.newDatabasePath(catalog.warehouse(), db);
             assertThat(fileIO.exists(expected)).isTrue();
             assertThat(actual).isEqualTo(expected);
 
@@ -177,7 +178,8 @@ public class HiveLocationTest {
                         tableIdentifier.getDatabaseName(), tableIdentifier.getObjectName());
         String location =
                 hmsClientTablea.getParameters().get(LocationKeyExtractor.TBPROPERTIES_LOCATION_KEY);
-        String expected = this.objectStorePath + "/" + db + ".db" + "/" + table;
+        String expected =
+                AbstractCatalog.newTableLocation(catalog.warehouse(), tableIdentifier).toString();
         assertThat(fileIO.exists(new Path(expected))).isTrue();
         assertThat(location).isEqualTo(expected);
     }

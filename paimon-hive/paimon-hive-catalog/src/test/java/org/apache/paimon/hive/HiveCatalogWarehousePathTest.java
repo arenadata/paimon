@@ -64,4 +64,12 @@ public class HiveCatalogWarehousePathTest {
                                 .toString())
                 .isEqualTo("ofs://omservice/apps/paimon/warehouse");
     }
+
+    @Test
+    public void testQualifyWarehousePathAgainstLocalFileDefaultFs() {
+        assertThat(
+                        HiveCatalog.qualifyWarehousePath("/tmp/warehouse", URI.create("file:///"))
+                                .toString())
+                .isEqualTo("file:/tmp/warehouse");
+    }
 }
