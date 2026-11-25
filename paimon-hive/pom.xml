@@ -25,7 +25,7 @@ under the License.
     <parent>
         <artifactId>paimon-parent</artifactId>
         <groupId>org.apache.paimon</groupId>
-        <version>1.5-SNAPSHOT</version>
+        <version>2.0.0.2-4.5.0-0</version>
     </parent>
 
     <artifactId>paimon-hive</artifactId>
@@ -45,7 +45,7 @@ under the License.
     </modules>
 
     <properties>
-        <hive.version>2.3.10</hive.version>
+        <hive.version>2.3.10.4-4.5.0-1</hive.version>
         <tez.version>0.10.0</tez.version>
         <hiverunner.version>5.5.0</hiverunner.version>
         <reflections.version>0.9.8</reflections.version>
